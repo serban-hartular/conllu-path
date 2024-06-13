@@ -11,6 +11,8 @@ import sys
 sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix() + '/conllu_path')
 
+import conllu_path
+
 
 project = 'conllu-path'
 copyright = '2024, Serban Hartular'
