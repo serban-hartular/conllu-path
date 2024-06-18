@@ -32,7 +32,7 @@ class Tree:
 
     def set_children(self, children : List['Tree']):
         self._children = children
-        self._children.sort(key=lambda n : int(n.sdata('id')))
+        self._children.sort(key=lambda n : n.id()) # int(n.sdata('id')))
         for child in self._children:
             child.parent = self
         # id = self.id_nr()

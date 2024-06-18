@@ -39,7 +39,7 @@ key     : key "." CNAME
 
 PATH_MARKER : "/" | "//" | "./" |  "../" | ".//" | "." | "<" | ">"
 EQU : "="
-WORD: /[\w][\w\-\:]*/
+WORD: /[\w\-\'][\w\-\:\.\-\']*/
 REGEX : "{regex_start}" /.+/ "{regex_stop}"
 
 %import common.CNAME

@@ -42,27 +42,249 @@
 </pre></div>
 </div>
 </section>
-<section id="loading-conllu-files">
-<h2>Loading conllu files<a class="headerlink" href="#loading-conllu-files" title="Link to this heading">¶</a></h2>
-<p>To iterate through the sentences in a conllu file,
-you can use the <code class="docutils literal notranslate"><span class="pre">conllu_path.iter_sentences_from_conllu(filename)</span></code> function:</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="conllu_path.iter_sentences_from_conllu">
-<span class="sig-prename descclassname"><span class="pre">conllu_path.</span></span><span class="sig-name descname"><span class="pre">iter_sentences_from_conllu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><span class="pre">Sentence</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#conllu_path.iter_sentences_from_conllu" title="Link to this definition">¶</a></dt>
-<dd><p>Returns an iterator of sentences from the conllu file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>file</strong> – filename or string buffer.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Generator of sentences.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Generator[Sentence, None, None]</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="sample-usage">
+<h2>Sample usage<a class="headerlink" href="#sample-usage" title="Link to this heading">¶</a></h2>
+<p>Import the package, and load your conllu file into a doc. The examples below use
+part of the reference Romanian-language UD corpus, RoRefTrees.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">conllu_path</span> <span class="k">as</span> <span class="nn">cp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">Doc</span><span class="o">.</span><span class="n">from_conllu</span><span class="p">(</span><span class="s1">&#39;../ro_rrt-ud-train.conllu&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(The following examples assume you know something about the conllu annotation format. If
+you don’t, consult <a class="reference external" href="https://universaldependencies.org/">https://universaldependencies.org/</a>, the homepage of the corpus
+you are using and, of course, browse the corpus yourself.)</p>
+<p>Now I’m going to search the doc for the plural form of the noun <em>vis</em>
+(meaning <em>dream</em>). I’m doing this because I know this noun has two possible plurals,
+<em>vise</em> and <em>visuri</em>, and I would like to see what context each is used in. To do this,
+I am going to use the <code class="docutils literal notranslate"><span class="pre">Doc.search</span></code> function, which searches through all the
+sentences in a doc, starting at the root of each sentence. Its argument is the
+following search expression:</p>
+<p><code class="docutils literal notranslate"><span class="pre">'.//[lemma=vis</span> <span class="pre">upos=NOUN</span> <span class="pre">feats.Number=Plur]'</span></code>.</p>
+<p>The search expression consists of a path prefix (<code class="docutils literal notranslate"><span class="pre">.//</span></code>), and a set of conditions
+that a node must fulfill in order to match the search expression, in
+square brackets. The path prefix indicates what nodes are included in the search:
+<code class="docutils literal notranslate"><span class="pre">.//</span></code> means “the current node and all its descendants” – which, in doc and sentence
+searches, means all nodes. The conditions inside the square brackets mean that
+a node will match only if its <em>lemma</em> is <em>vis</em>, if its <em>upos</em> (universal part-of-speech)
+is <em>NOUN</em>, and if, among its morphological features (<em>feats</em>), the <em>Number</em>
+feature is <em>Plur</em>, singifying plural.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;.//[lemma=vis upos=NOUN feats.Number=Plur]&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s1">&#39; -- &#39;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">sentence</span><span class="p">())</span>
+<span class="go">5:vise  --  Era unul din acele vise care, deși păstrează decorul caracteristic viselor, sunt o continuare a activității intelectului și în care devii conștient de anumite fapte și idei care ți se par inedite și valoroase și după ce te trezești. (sent_id=train-590)</span>
+<span class="go">12:viselor  --  Era unul din acele vise care, deși păstrează decorul caracteristic viselor, sunt o continuare a activității intelectului și în care devii conștient de anumite fapte și idei care ți se par inedite și valoroase și după ce te trezești. (sent_id=train-590)</span>
+<span class="go">15:vise  --  Peisajul pe care-l avea în fața ochilor îi revenea atât de frecvent în vise, încât niciodată nu era pe deplin sigur dacă îl văzuse sau nu în realitate. (sent_id=train-599)</span>
+<span class="go">8:visurile  --  un vizionar al cărui destin, cu visurile și faptele sale de vitejie, a rămas pentru totdeauna în istorie, contribuind la modelarea lumii, așa cum o cunoaștem astăzi. (sent_id=train-1362)</span>
+<span class="go">17:vise  --  / / Plâns de ape se repetă / Încă totu-i adormit – / Ca în vise s-a pornit / Roata morii – violetă. (sent_id=train-2687)</span>
+<span class="go">29:vise  --  / / Cioplindu-și-o cu mâinile subțiri, / neîntrecutul meșter din Cremona, / încă-nainte de-a o isprăvi, / i-a ascultat în vise melodia. (sent_id=train-2833)</span>
+<span class="go">4:vise  --  Crea din nou vise, căutând să mă formeze pentru ele. (sent_id=train-2995)</span>
+<span class="go">11:vise  --  Nu știți că vă așteaptă deșteptarea, Nebuni hrăniți cu vise? (sent_id=train-3162)</span>
+<span class="go">6:vise  --  În sufletu-mi buchetele de vise Au înflorit când înflorea răsura. (sent_id=train-3376)</span>
+<span class="go">1:Visele  --  Visele sunt semne de dragoste. (sent_id=train-3538)</span>
+<span class="go">11:visurile  --  Realltatea e un monstru hidos, hrănit cu iluziile și visurile noastre. (sent_id=train-3564)</span>
+</pre></div>
+</div>
+<p>The search returns 11 results, of which only the second and the last have plurals with the
+<em>-uri</em> desinence, as opposed to the <em>-e</em> desinence. A good Romanian language dictionary
+will tell you that the <em>-uri</em> ending is used when the word <em>vis</em> means dream=aspiration,
+and the <em>-e</em> ending for the literal sense of dream=vision-while-sleeping. These examples
+confirm what the dictionary says.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">doc.search</span></code> function returns a generator of <code class="docutils literal notranslate"><span class="pre">Tree</span></code> objects. <code class="docutils literal notranslate"><span class="pre">Tree</span></code> objects
+represent nodes in the sentence dependency tree, one node for each token (word,
+punctuation, etc.) in the sentence. I can inspect the content of the annotation
+for a node using the <code class="docutils literal notranslate"><span class="pre">Tree.data</span></code> function:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">)</span>
+<span class="go">&#39;visurile&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s1">&#39;feats.Gender&#39;</span><span class="p">)</span>
+<span class="go">{&#39;Fem&#39;}</span>
+</pre></div>
+</div>
+<p>Morphological features and annotations in the <code class="docutils literal notranslate"><span class="pre">misc</span></code> section are stored as sets,
+since a feature can have more than one value. Repeatedly getting the value of the sole member
+of a set can be a pain, so you can get the content of any annotation in string form
+using the <code class="docutils literal notranslate"><span class="pre">Tree.sdata</span></code> function.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">sdata</span><span class="p">(</span><span class="s1">&#39;feats.Gender&#39;</span><span class="p">)</span>
+<span class="go">&#39;Fem&#39;</span>
+</pre></div>
+</div>
+<p>(If the feature has multiple values, they will be joined by commas and returned
+as a string.)</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">Tree.data</span></code> without an argument will return the entire annotation of the node
+in dictionary form:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+<span class="go">{&#39;id&#39;: &#39;11&#39;, &#39;form&#39;: &#39;visurile&#39;, &#39;lemma&#39;: &#39;vis&#39;, &#39;upos&#39;: &#39;NOUN&#39;, &#39;xpos&#39;: &#39;Ncfpry&#39;, &#39;feats&#39;: {&#39;Case&#39;: {&#39;Nom&#39;, &#39;Acc&#39;}, &#39;Definite&#39;: {&#39;Def&#39;}, &#39;Gender&#39;: {&#39;Fem&#39;}, &#39;Number&#39;: {&#39;Plur&#39;}}, &#39;head&#39;: &#39;9&#39;, &#39;deprel&#39;: &#39;conj&#39;, &#39;deps&#39;: None, &#39;misc&#39;: None}</span>
+</pre></div>
+</div>
+<p>It’s possible to search for multiple feature values at once, e.g. <code class="docutils literal notranslate"><span class="pre">lemma=vis,coșmar</span></code> will
+match nodes whose lemma is either <em>vis</em> or <em>coșmar</em> (nightmare). Feature values
+can also be matched against regular expressions enclosed in curly braces. For
+instance, <code class="docutils literal notranslate"><span class="pre">lemma={filo.*}</span></code> will match any lemma that starts with ‘filo’.</p>
+<p>Search requirements can be combined using the logical operators <em>and</em> (<code class="docutils literal notranslate"><span class="pre">&amp;</span></code>),
+<em>or</em> (<code class="docutils literal notranslate"><span class="pre">|</span></code>) and <em>not</em> (<code class="docutils literal notranslate"><span class="pre">!</span></code>), and grouped using parentheses. The order of
+operations is <em>not</em>, <em>and</em>, <em>or</em>.
+Space-separated requirements (as in the example
+above) are implicitly and-ed. If I want to search for a verb that is used as an
+auxiliary or has the lemma <em>putea</em>, my search string would be</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">.//[upos=VERB</span> <span class="pre">(deprel=aux</span> <span class="pre">|</span> <span class="pre">lemma=putea)</span> <span class="pre">]</span></code></p>
+</div></blockquote>
+<p>If your corpus is very large, loading all of it to the memory can pose problems. Corpora
+can be iterated through (by sentence), using the
+<code class="docutils literal notranslate"><span class="pre">conllu_path.iter_sentences_from_conllu</span></code> function:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">cp</span><span class="o">.</span><span class="n">iter_sentences_from_conllu</span><span class="p">(</span><span class="s1">&#39;../ro_rrt-ud-train.conllu&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;.//[lemma=vis upos=NOUN feats.Number=Plur]&#39;</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">uid</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">sentence</span><span class="p">())</span>
+<span class="go">vise     train-590/5     Era unul din acele vise care, deși păstrează decorul caracteristic viselor, sunt o continuare a activității intelectului și în care devii conștient de anumite fapte și idei care ți se par inedite și valoroase și după ce te trezești. (sent_id=train-590)</span>
+<span class="go">viselor          train-590/12    Era unul din acele vise care, deși păstrează decorul caracteristic viselor, sunt o continuare a activității intelectului și în care devii conștient de anumite fapte și idei care ți se par inedite și valoroase și după ce te trezești. (sent_id=train-590)</span>
+<span class="go">vise     train-599/15    Peisajul pe care-l avea în fața ochilor îi revenea atât de frecvent în vise, încât niciodată nu era pe deplin sigur dacă îl văzuse sau nu în realitate. (sent_id=train-599)</span>
+<span class="go">visurile         train-1362/8    un vizionar al cărui destin, cu visurile și faptele sale de vitejie, a rămas pentru totdeauna în istorie, contribuind la modelarea lumii, așa cum o cunoaștem astăzi. (sent_id=train-1362)</span>
+<span class="go">vise     train-2687/17   / / Plâns de ape se repetă / Încă totu-i adormit – / Ca în vise s-a pornit / Roata morii – violetă. (sent_id=train-2687)</span>
+<span class="go">vise     train-2833/29   / / Cioplindu-și-o cu mâinile subțiri, / neîntrecutul meșter din Cremona, / încă-nainte de-a o isprăvi, / i-a ascultat în vise melodia. (sent_id=train-2833)</span>
+<span class="go">vise     train-2995/4    Crea din nou vise, căutând să mă formeze pentru ele. (sent_id=train-2995)</span>
+<span class="go">vise     train-3162/11   Nu știți că vă așteaptă deșteptarea, Nebuni hrăniți cu vise? (sent_id=train-3162)</span>
+<span class="go">vise     train-3376/6    În sufletu-mi buchetele de vise Au înflorit când înflorea răsura. (sent_id=train-3376)</span>
+<span class="go">Visele   train-3538/1    Visele sunt semne de dragoste. (sent_id=train-3538)</span>
+<span class="go">visurile         train-3564/11   Realltatea e un monstru hidos, hrănit cu iluziile și visurile noastre. (sent_id=train-3564)</span>
+</pre></div>
+</div>
+<p>In this example, I displayed each node’s unique ID, (<code class="docutils literal notranslate"><span class="pre">Tree.uid()</span></code>), which consists
+of the sentence id, a backslash, and the ID of the node within the sentence. You can
+get a node from a doc by its UID:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s1">&#39;train-3538/1&#39;</span><span class="p">),</span> <span class="n">doc</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s1">&#39;train-3538/1&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sentence</span><span class="p">()</span>
+<span class="go">(1:Visele, Visele sunt semne de dragoste. (sent_id=train-3538))</span>
+</pre></div>
+</div>
+<p>A search can include requirements for a node’s children, descendants, or
+parent. In the next search, I am looking for the verbal pro-form <em>a o face</em> (to
+do it/this), consisting of the verb <em>face</em> and the feminine pronominal clitic <em>o</em>
+in the role of the direct object. The search string is</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">'.//[lemma=face</span> <span class="pre">/[deprel=obj</span> <span class="pre">form=o,-o,o-]</span> <span class="pre">]'</span></code></p>
+</div></blockquote>
+<p>The nodes I am looking for must have the <code class="docutils literal notranslate"><span class="pre">lemma</span></code> <em>face</em>. The next requirement,
+<code class="docutils literal notranslate"><span class="pre">/[deprel=obj</span> <span class="pre">form=o,-o,o-]</span></code>, means the node must have a child (the <code class="docutils literal notranslate"><span class="pre">/</span></code> prefix)
+whose <code class="docutils literal notranslate"><span class="pre">deprel</span></code> is <code class="docutils literal notranslate"><span class="pre">obj</span></code> (direct object) and whose <code class="docutils literal notranslate"><span class="pre">form</span></code> is <em>o</em>, <em>-o</em>, or <em>o-</em>
+(because a clitic can be connected to an adjacent word with a dash.)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;.//[lemma=face /[deprel=obj form=o,-o,o-] ]&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">sentence</span><span class="p">())</span>
+<span class="go">este creat de o celulă care a primit o genă (ADN) care o face capabilă să producă factorul uman VIII de coagulare. (sent_id=train-4152)</span>
+<span class="go">Când o vor face, viața lor la curte va deveni mult mai ușoară. (sent_id=train-4777)</span>
+<span class="go">Răpirea a fost aparent săvârșită de o celulă de teroriști internaționali, și asta o face automat o problemă de securitate de stat. (sent_id=train-4924)</span>
+<span class="go">Consfătuirea poate dezvălui dezordinea și o poate aduce la suprafață, dar dacă o face, acea harababură va fi existat cu mult înaintea procesului de consfătuire. (sent_id=train-5073)</span>
+<span class="go">Am făcut-o cu atâta forță, totuși, că m-am tăiat puțin la buza de jos la marginea instrumentului negru, dur. (sent_id=train-5320)</span>
+<span class="go">și deși pielea se întărește la soare pentru a se proteja, nu o face și într-un solar. (sent_id=train-5374)</span>
+<span class="go">Obiectivul general stabilit în art. 1 este de a întări acțiunea comunitară în domeniul culturii și de a o face mai eficientă prin acordarea de asistență organismelor care activează în acest domeniu. (sent_id=train-5983)</span>
+<span class="go">Clinchetul paharelor ciocnite, izul de vin risipit pe mesele de fag, toate o făceau să fie veselă fără să știe de ce. (sent_id=train-6791)</span>
+</pre></div>
+</div>
+<p>Searching the structure of the dependency tree is better than a sequential search in
+this case because the position of the clitic can vary depending on the mood and tense
+of the verb: it can precede the verb (<em>nu o face</em>), follow it (<em>Am făcut-o</em>), be
+separated from the verb by an auxiliary (<em>o vor face</em>).</p>
+<p>Now suppose I want to find some ellipses. Specifically, I am looking for situations
+where the verb <em>a vrea</em> (to want), a transitive verb, is used without its direct
+object. My search string is</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">'.//[lemma=vrea</span> <span class="pre">upos=VERB</span> <span class="pre">!/[deprel=obj,ccomp,xcomp]</span> <span class="pre">]'</span></code></p>
+</div></blockquote>
+<p>The node’s lemma must be <em>vrea</em> and its part of speech must be <code class="docutils literal notranslate"><span class="pre">VERB</span></code>, to exclude
+the uses of <em>vrea</em> as an auxiliary. The next requirement, <code class="docutils literal notranslate"><span class="pre">!/[deprel=obj,ccomp,xcomp]</span></code>,
+is that the node must <em>not</em> (the <code class="docutils literal notranslate"><span class="pre">!</span></code> operator) have a child (the <code class="docutils literal notranslate"><span class="pre">/</span></code> path prefix)
+whose <code class="docutils literal notranslate"><span class="pre">deprel</span></code> is <code class="docutils literal notranslate"><span class="pre">obj</span></code> (nominal direct object), <code class="docutils literal notranslate"><span class="pre">ccomp</span></code> (clausal direct object)
+or <code class="docutils literal notranslate"><span class="pre">xcomp</span></code> (secondary object).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;.//[lemma=vrea upos=VERB !/[deprel=obj,ccomp,xcomp] ]&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">sentence</span><span class="p">())</span>
+<span class="go">Nu vroia dar în final devenise conștientă de ora târzie printr-un căscat; se întâmplă deja înainte ca ea să-l poată opri. (sent_id=train-5394)</span>
+<span class="go">(&quot; Nu vreau gratis, domnule, se justifica Hagienuș peste tot, nu vreau să fiu întreținut de copii. (sent_id=train-6690)</span>
+</pre></div>
+</div>
+<p>The search returns two sentences where the verb <em>vrea</em> is used without a direct object:
+<em>Nu vroia dar în final devenise conștientă…</em>, i.e. <em>She didn’t want to, but finally she became aware…</em>,
+and <em>Nu vreau gratis</em>, i.e. <em>I don’t want [to receive anything] for free</em>.</p>
+<p>Sometimes it is desirable for the search to capture both the matching node and
+the descendant(s) of that node that was part of the search. Suppose I want to see
+what adjectives are used in a text to describe the noun <em>fată</em> (girl). My search
+string will be:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">'.//[upos=NOUN</span> <span class="pre">lemma=fată]/[deprel=amod</span> <span class="pre">upos=ADJ]'</span></code></p>
+</div></blockquote>
+<p>Here, the part of the search expression that describes the subordinate adjective,
+<code class="docutils literal notranslate"><span class="pre">/[deprel=amod</span> <span class="pre">upos=ADJ]</span></code>, is outside the square brackets of the expression
+describing the noun. It follows the first expression, as if describing a path
+to the node.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;.//[upos=NOUN lemma=fată]/[deprel=amod upos=ADJ]&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">next_matches</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">sentence</span><span class="p">())</span>
+<span class="go">Match(18:fată) [Match(19:singură)] Odată recunoscut, nu mai putea merge să se așeze la o masă unde stătea deja o fată singură. (sent_id=train-271)</span>
+<span class="go">Match(5:fată) [Match(6:bolnavă)] Orașul este „o fată bolnavă în agonie ”, casele par „femei tăcute ”, poetul se închipuie într-un sanatoriu, unde moartea face parte din cotidian. (sent_id=train-2839)</span>
+<span class="go">Match(58:fată) [Match(59:mare)] Tu, bubă veninată, bubă din bere, din mâncare, din bătaia vântului, din boarea pământului, să ieși de la cutare din cap, din inimă, din trupul lui, din toate inchieturile să ieși și să te duci în vânturile mari, peste munți, unde popă nu toacă, unde fată mare coadă nu împletește, unde câne nu latră. (sent_id=train-3516)</span>
+<span class="go">Match(11:fete) [Match(10:grațioase)] Unul dintre cele mai pregnante studii este al unei grațioase fete de zece ani care s-a înecat câțiva ani mai târziu într-un accident de canotaj pe Mississippi. (sent_id=train-5188)</span>
+<span class="go">Match(21:fetele) [Match(22:nemăritate)] Ăl mai mare era Oprică al lui coana Mărita, una de da în cărți și făcea de dragoste la fetele nemăritate. (sent_id=train-6810)</span>
+</pre></div>
+</div>
+<p>The adjectives that describe the noun <em>fată</em> are <em>singură</em> (alone), <em>bolnavă</em> (sick),
+<em>mare</em> (big/old, i.e. an old maid), <em>grațioasă</em> (graceful), <em>nemăritată</em> (unmarried).</p>
+<p>When the search expression consists of a path (rather than the description of a
+single node), <code class="docutils literal notranslate"><span class="pre">doc.search</span></code> returns a <code class="docutils literal notranslate"><span class="pre">Match</span></code> object instead of a <code class="docutils literal notranslate"><span class="pre">Tree</span></code> object
+A <code class="docutils literal notranslate"><span class="pre">Match</span></code> object has a <code class="docutils literal notranslate"><span class="pre">node</span></code> attribute that points to the node itself,
+and a <code class="docutils literal notranslate"><span class="pre">next_nodes</span></code> attribute, a list of the nodes that matched the next element
+in the path. The next element in the path can match multiple nodes. In the
+next example, I extract those situations where multiple adjectives
+are used together to describe the noun <em>familie</em>, family:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;.//[upos=NOUN lemma=familie]/[deprel=amod upos=ADJ]&#39;</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">next_matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">next_matches</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">sentence</span><span class="p">())</span>
+<span class="go">Match(16:familie) [Match(15:singură), Match(17:imensă)] În vagonul în care călătorise el, băncile de lemn erau supraaglomerate de o singură familie imensă, de la o străbunică știrbă până la un copil de o lună: se duceau cu toții la țară, la niște neamuri, să petreacă o după-amiază și, așa cum îi explicaseră lui Winston, deși el nu-i întrebase, ca să facă rost de niște unt pe sub mână. (sent_id=train-422)</span>
+<span class="go">Match(10:familie) [Match(9:veche), Match(11:boierească)] Prin tată, B. se trăgea dintr-o veche familie boierească (Mustea), atestată pe vremea lui Ștefan cel Mare. (sent_id=train-2680)</span>
+<span class="go">Match(6:familii) [Match(7:irlandeze), Match(9:nebune)] Descrierea lui Ronan a unei familii irlandeze puțin nebune este numai suficient de răutăcioasă ca să rămână pe partea mai dură a sentimentalului, povestirea sa despre dispariția înceată a unei prietenii inconfortabil de convingătoare. (sent_id=train-5091)</span>
+</pre></div>
+</div>
+<p>Families are described in the corpus as being <em>singură, imensă</em> (alone, huge),
+<em>veche, boierească</em> (old, aristocratic), <em>irlandeză, nebună</em> (Irish, crazy).</p>
+<p>(Note that this search won’t capture adjectives that are connected by coordination
+since, in the UD annotation, the second item in a coordinated construction is
+connected to the first item, not to their grammatical regent. A search for coordinated
+adjectives would have to look like this:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">'.//[upos=NOUN</span> <span class="pre">lemma=lemma]/[deprel=amod</span> <span class="pre">upos=ADJ]/[deprel=conj</span> <span class="pre">upos=ADJ]'</span></code></p>
+</div></blockquote>
+<p>where deprel=conj means ‘is connected to the previous item by a relationship of coordination.
+Searches have to take into account the way the UD dependency trees are structured.)</p>
+<p>So far, I’ve shown examples of searches applying to entire docs or sentences.
+Searches can start from individual nodes as well, using a <code class="docutils literal notranslate"><span class="pre">Search</span></code> object.
+The <code class="docutils literal notranslate"><span class="pre">Search</span></code> object is built by passing a search expression to the constructor.
+It implements a <code class="docutils literal notranslate"><span class="pre">Search.match</span></code> function that takes a node as its argument and
+returns a list of nodes that match the search, starting at that node. For example,
+let’s pick a node in the doc:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">node</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s1">&#39;train-3303/14&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">node</span>
+<span class="go">14:depărteze</span>
+</pre></div>
+</div>
+<p>This node has a number of children.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">()</span>
+<span class="go">[4:că, 5:prețul, 11:să, 12:nu, 13:se, 15:mult, 16:,, 17:în, 31:arenda]</span>
+</pre></div>
+</div>
+<p>I can search, starting at this node, for those children that are: nouns,
+subordinating conjunctions, adverbs, or particles:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cp</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s1">&#39;/[upos=NOUN]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+<span class="go">[5:prețul, 31:arenda]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cp</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s1">&#39;/[upos=SCONJ]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+<span class="go">[4:că]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cp</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s1">&#39;/[upos=ADV]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+<span class="go">[15:mult]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cp</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s1">&#39;/[upos=PART]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+<span class="go">[11:să, 12:nu]</span>
+</pre></div>
+</div>
+<p>Since the <code class="docutils literal notranslate"><span class="pre">Search.match</span></code> function returns an empty list if no matching node
+is found, it can be used in list comprehensions – in the next example, to build
+a list of those nodes that are either subordinate conjunctions or particles:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">()</span> <span class="k">if</span> <span class="n">cp</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s1">&#39;.[upos=SCONJ,PART]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+<span class="go">[4:că, 11:să, 12:nu]</span>
+</pre></div>
+</div>
+<p>Note that in this case, the path prefix is <code class="docutils literal notranslate"><span class="pre">.</span></code>, meaning that the search is
+happenning on the current node (not on its children or descendants).</p>
 </section>
 </section>
 
@@ -86,10 +308,7 @@ you can use the <code class="docutils literal notranslate"><span class="pre">con
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#loading-conllu-files">Loading conllu files</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#conllu_path.iter_sentences_from_conllu"><code class="docutils literal notranslate"><span class="pre">iter_sentences_from_conllu()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#sample-usage">Sample usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>

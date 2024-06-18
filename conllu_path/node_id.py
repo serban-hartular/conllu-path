@@ -55,4 +55,4 @@ class NodeID(UserString):
     def multiword(self) -> bool:
         return self._multiword
     def in_tree(self) -> bool:
-        return not self.multiword()
+        return not self.multiword() and not self.elided()

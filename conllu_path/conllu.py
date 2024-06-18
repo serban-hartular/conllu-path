@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+import warnings
 from io import StringIO
 from typing import Dict, List, Generator
 from conllu_path.exception import ConlluException
@@ -12,9 +13,10 @@ from conllu_path.sentence import Sentence
 conllu_fields = ('id', 'form', 'lemma', 'upos', 'xpos', 'feats',
                  'head', 'deprel', 'deps', 'misc')
 conllu_index_dict = {k:i for i, k in enumerate(conllu_fields)}
-field_is_dict = ('feats', 'misc', 'deps')
+field_is_dict = ('feats', 'misc')
+field_is_set = ('deps',)
 EMPTY_FIELD = '_'
-DICT_ITEM_SPLIT = '|'
+DICT_SET_ITEM_SPLIT = '|'
 KEY_VAL_SEP = {'feats': '=', 'misc' : '=', 'deps': ':'}
 MANY_VALS_SEP = ','
 
@@ -29,19 +31,23 @@ def conllu_to_node(source : str, line_nr : int = None) -> Tree:
             data_list.append(None)
         elif label in field_is_dict:
             #this field contains a dict
-            items = data_str.split(DICT_ITEM_SPLIT)
+            items = data_str.split(DICT_SET_ITEM_SPLIT)
             try:
                 item_dict = {t[0]:set(t[1].split(MANY_VALS_SEP))
                              for t in (s.split(KEY_VAL_SEP[label], 1) for s in items)}
             except:
                 raise ConlluException(data_str, 'Error splitting dict field', line_nr)
             data_list.append(DictNode(item_dict))
+        elif label in field_is_set:
+            items = data_str.split(DICT_SET_ITEM_SPLIT)
+            data_list.append(set(items))
         else:
             data_list.append(data_str)
     data = FixedKeysNode(data_list, conllu_index_dict)
     return Tree(data.sdata('id'), data)
 
 def node_to_conllu(node : Tree) -> str:
+    is_null = node.id().elided()
     node = node.to_dict()
     data_list = []
     for label in conllu_fields:
@@ -52,7 +58,7 @@ def node_to_conllu(node : Tree) -> str:
             data = EMPTY_FIELD
         elif isinstance(data, Dict):
             data =\
-                DICT_ITEM_SPLIT.join(
+                DICT_SET_ITEM_SPLIT.join(
                     KEY_VAL_SEP[label].join([
                         k, MANY_VALS_SEP.join(v) if not isinstance(v, str) else v
                 ])
@@ -67,7 +73,7 @@ def sentence_to_conllu(sentence : Sentence) -> str:
     output = ''.join(['# %s\n' % m for m in sentence.meta]) if sentence.meta else ''
     output += '# sent_id = %s\n' % str(sentence.sent_id)
     output += '# text = %s\n' % str(sentence.text)
-    for node in sentence._sequence:
+    for node in sentence.sequence:
         output += node_to_conllu(node) + '\n'
     output += '\n'
     return output
@@ -99,6 +105,8 @@ def iter_sentences_from_conllu(file : typing.TextIO | str) -> Generator[Sentence
                 if meta_data: # add metadata to sentence **kwargs
                     special_data.update({'meta':meta_data})
                 sentence = Sentence(node_sequence, **(special_data))
+                if not sentence.root:
+                    warnings.warn('Error building sentence sent_id = %s: %s' % (sentence.sent_id, sentence.sanity_comment))
                 node_sequence = []
                 meta_data = []
                 special_data = {}  # text, sent_id

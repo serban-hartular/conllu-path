@@ -10,12 +10,32 @@ from conllu_path.tree import Tree
 from conllu_path.search import Search, Match
 
 class Sentence:
+    """Sentence class consists of a tree structure, built from a sequence of nodes.
+
+    The __init__ method may be documented in either the class level
+    docstring, or as a docstring on the __init__ method itself.
+
+    Either form is acceptable, but the two should not be mixed. Choose one
+    convention to document the __init__ method and be consistent with it.
+
+    Note:
+        Do not include the `self` parameter in the ``Args`` section.
+
+    Args:
+        msg (str): Human readable string describing the exception.
+        code (:obj:`int`, optional): Error code.
+
+    Attributes:
+        sequence (List[Tree]): Human readable string describing the exception.
+        sent_id (str): Exception error code.
+
+    """
     def __init__(self, node_sequence : List[Tree], **kwargs):
-        self._sequence = node_sequence
+        self.sequence = node_sequence
         self.sent_id = kwargs.get('sent_id')
         self.text = kwargs.get('text')
         self.meta = kwargs.get('meta')
-        self._id_dict = {n.id():n for n in self._sequence}
+        self._id_dict = {n.id():n for n in self.sequence}
         self.root = None
         self.sanity_comment = ''
         self._is_good = self.sanity_check()
@@ -24,7 +44,7 @@ class Sentence:
 
     def iter_nodes(self, from_node : Tree = None, **kwargs) -> Generator[Tree, None, None]:
         try:
-            start_index = self._sequence.index(from_node) if from_node else 0
+            start_index = self.sequence.index(from_node) if from_node else 0
         except:
             raise Exception('Could not find node %s in sentence %s' % (str(from_node), str(self)))
         multiwords = kwargs.get('multiwords')
@@ -35,7 +55,7 @@ class Sentence:
             raise Exception('Bad value multiword="%s", should be one of %s' % (str(multiwords), str(multiwords_options)))
         elided = bool(kwargs.get('elided'))
         latest_multiword = None
-        for n in self._sequence[start_index:]:
+        for n in self.sequence[start_index:]:
             if n.id().elided() and not elided:
                 continue # skip elided
             if n.id().multiword():
@@ -47,22 +67,18 @@ class Sentence:
             yield n
 
     def sanity_check(self) -> bool:
-        ids = [n.id for n in self._sequence]
+        ids = [n.id() for n in self.sequence]
         if not ids:
             self.sanity_comment = "sentence cannot be empty"
             return False
-        if '' in ids:
+        if '' in ids or None in ids:
             self.sanity_comment = "every node must have an id"
             return False
         if len(ids) != len(set(ids)):
             self.sanity_comment = "ids must be unique"
             return False
-        tree_ids = [n.id for n in self._sequence if n.id().in_tree()]
-        # num_ids = [int(id) for id in ids if str.isnumeric(id)]
-        # if list(range(1, len(num_ids)+1)) != num_ids:
-        #     self.sanity_comment = "node ids must start with 1 and be successive"
-        #     return False
-        heads = [n.sdata('head') for n in self._sequence if n.id().in_tree()]
+        tree_ids = [n.id() for n in self.sequence if n.id().in_tree()]
+        heads = [n.sdata('head') for n in self.sequence if n.id().in_tree()]
         if '' in heads:
             self.sanity_comment = "can't build a tree without heads"
             return False
@@ -79,7 +95,7 @@ class Sentence:
 
     def build_tree(self):
         children_dict = defaultdict(list)
-        for node in self._sequence:
+        for node in self.sequence:
             if not node.id().in_tree():
                 node.parent = self # parent is sentence
                 continue
@@ -98,6 +114,7 @@ class Sentence:
     def __bool__(self):
         return self._is_good
     def get_node(self, id : str) -> Tree|None:
+        id = NodeID(id)
         return self._id_dict.get(id)
 
     def search(self, src: str|Search) -> List[Tree]|List[Match]:
@@ -106,12 +123,8 @@ class Sentence:
         return src.match(self.root)
 
     def __str__(self):
-        s = 'Sentence('
-        if self.sent_id:
-            s += 'sent_id=%s,' % self.sent_id
-        text = self.text if self.text else ' '.join([n.sdata('form') for n in self._sequence])
-        s += '"%s")' % text
-        return s
+        text = self.text if self.text else ' '.join([n.sdata('form') for n in self.sequence])
+        return text + (' (sent_id=%s)' % self.sent_id)
 
     def __repr__(self):
         return str(self)
@@ -170,3 +183,16 @@ class Doc(List[Sentence]):
     @staticmethod
     def from_conllu(filename : str) -> Doc:
         return Doc(conllu_path.iter_sentences_from_conllu(filename))
+
+    def to_conllu(self, filename : str = None) -> str|None:
+        buffer = ''
+        fptr = open(filename, 'w', encoding='utf-8') if filename else None
+        for sentence in self:
+            if fptr:
+                fptr.write(conllu_path.conllu.sentence_to_conllu(sentence))
+            else:
+                buffer += conllu_path.conllu.sentence_to_conllu(sentence)
+        if fptr:
+            fptr.close()
+        else:
+            return buffer

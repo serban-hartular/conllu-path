@@ -43,7 +43,7 @@ class ValueComparer(Evaluator):
         else: # unknown type of value or None -- don't add
             return False
         # return bool(self.values.intersection(actual_values))
-        return any([self.regex.match(v) for v in actual_values])
+        return any([self.regex.fullmatch(v) for v in actual_values])
 
     def __str__(self):
         return '.'.join(self.key) + self.operator + ','.join(self.values)

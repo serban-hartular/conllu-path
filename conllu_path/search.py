@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
+import conllu_path
 from conllu_path.search_evaluator import NodePathEvaluator
 from conllu_path.expr_parser import parse_evaluator
 from conllu_path.tree import Tree
@@ -10,6 +11,9 @@ class Match:
     def __init__(self, node : Tree, children : List[Match] = None):
         self.node = node
         self.next_matches = children if children is not None else []
+
+    def sentence(self) -> conllu_path.Sentence:
+        return self.node.sentence()
 
     def matches_level(self, depth) -> List[Match]:
         return Match.get_matches([self], depth)
@@ -37,6 +41,8 @@ class Search:
             expr = parse_evaluator(expr)
         self.evaluator_sequence = expr
     def match(self, tree : Tree) -> List[Match]|List[Tree]:
+        if not tree:
+            return []
         _match = Match(tree)
         if not Search._match_recursive(_match, self.evaluator_sequence):
             return []
