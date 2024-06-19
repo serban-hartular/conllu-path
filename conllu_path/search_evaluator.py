@@ -7,6 +7,8 @@ from conllu_path import Tree
 
 import re
 
+from conllu_path.tree import FIXED_EXPR_LEMMA_KEY
+
 REGEX_DELIM_START = '{'
 REGEX_DELIM_STOP = '}'
 
@@ -35,7 +37,8 @@ class ValueComparer(Evaluator):
             raise Exception('Error in regex %s: %s' % (values_str, str(e)))
 
     def evaluate(self, node : Tree) -> bool:
-        actual_values = node.data(self.key)
+        actual_values = node.sdata(self.key) if self.key == [FIXED_EXPR_LEMMA_KEY]\
+            else node.data(self.key)
         if isinstance(actual_values, str):
             actual_values = {actual_values}
         elif isinstance(actual_values, Iterable):

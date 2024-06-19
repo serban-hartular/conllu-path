@@ -6,6 +6,10 @@ from typing import Dict, List, Set, Generator
 from conllu_path.node_data import NodeData
 from conllu_path.node_id import NodeID
 
+
+FIXED_EXPR_LEMMA_KEY = 'flemma'
+FIXED_EXPR_LEMMA_SEPARATOR = '_'
+
 class Tree:
     UID_SEPARATOR = '/'
     def __init__(self, id : str|NodeID, data: NodeData, children : List['Tree'] = None, parent : 'Tree' = None):
@@ -19,9 +23,14 @@ class Tree:
             self.set_children(children)
     def id(self) -> NodeID:
         return self._id
-    def data(self, path: str | List[str] = None) -> NodeData | Set | str | None:
+    def data(self, path: str | List[str] = None) -> NodeData | Set[str] | List[str] | str | None:
+        if path == FIXED_EXPR_LEMMA_KEY or path == [FIXED_EXPR_LEMMA_KEY]: # return fixed expression lemmas
+            return ([self.sdata('lemma')] +
+                    [child.sdata('lemma') for child in self.children() if child.sdata('deprel') == 'fixed'])
         return self._data.data(path)
     def sdata(self, path: str | List[str] = None) -> str:
+        if path == FIXED_EXPR_LEMMA_KEY or path == [FIXED_EXPR_LEMMA_KEY]: # return fixed expression lemmas
+            return FIXED_EXPR_LEMMA_SEPARATOR.join(self.data(path))
         return self._data.sdata(path)
     def assign(self, path: str|List[str], value : NodeData|Set|str) -> bool:
         return self._data.assign(path, value)

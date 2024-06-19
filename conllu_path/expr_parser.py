@@ -82,4 +82,16 @@ class ExpressionBuilder(lark.Transformer):
 _parser = lark.Lark(grammar, start="node_list", parser="lalr", transformer=ExpressionBuilder())
 
 def parse_evaluator(expr : str) -> List[NodePathEvaluator]:
-    return _parser.parse(expr)
+    try:
+        return _parser.parse(expr)
+    except lark.UnexpectedInput as unex_input_e:
+        index = unex_input_e.column
+        e_with_error = expr[:index] + 'ˇ' + expr[index:]
+        e_string = 'Error in expression "%s" at character %d ("%s")' % (e_with_error, index, expr[unex_input_e.column-1])
+        for op, cp in [('(', ')'), ('[', ']'), ('{', '}')]:
+            if expr.count(op) != expr.count(cp):
+                e_string += '\nUnequal number of %s and %s' % (op, cp)
+        e = Exception(e_string)
+        raise e from None
+    except Exception as e:
+        raise Exception(str(e))

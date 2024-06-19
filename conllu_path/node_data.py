@@ -3,7 +3,6 @@ from __future__ import annotations
 import abc
 from typing import List, Set, Dict
 
-
 class NodeData(abc.ABC):
     """Abstract class for accessing the nested dict that holds node data.
 
@@ -96,7 +95,7 @@ class DictNode(NodeData):
         return list(self._ddict.keys())
     def to_dict(self) -> Dict:
         return dict(self._ddict)
-    def data(self, path: str | List[str] = None) -> NodeData | Set | str | None:
+    def data(self, path: str | List[str] = None) -> NodeData | Set[str] | str | None:
         if isinstance(path, str):
             path = path.split(NodeData.PATH_SEPARATOR)
         if not path:

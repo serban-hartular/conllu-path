@@ -91,7 +91,7 @@ in dictionary form:
 >>> match.data()
 {'id': '11', 'form': 'visurile', 'lemma': 'vis', 'upos': 'NOUN', 'xpos': 'Ncfpry', 'feats': {'Case': {'Nom', 'Acc'}, 'Definite': {'Def'}, 'Gender': {'Fem'}, 'Number': {'Plur'}}, 'head': '9', 'deprel': 'conj', 'deps': None, 'misc': None}
 
-It's possible to search for multiple feature values at once, e.g. ``lemma=vis,coșmar`` will
+It's possible to search for multiple  values at once, separated by commas, e.g. ``lemma=vis,coșmar`` will
 match nodes whose lemma is either *vis* or *coșmar* (nightmare). Feature values
 can also be matched against regular expressions enclosed in curly braces. For
 instance, ``lemma={filo.*}`` will match any lemma that starts with 'filo'.
