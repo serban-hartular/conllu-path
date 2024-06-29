@@ -6,7 +6,8 @@ Usage
 Installation
 ------------
 
-To use conllu-path, first install it using pip:
+To use conllu-path, first install it using pip (the project is currently on
+testpyi, so you have to enter two commands):
 
 .. code-block:: console
 
@@ -20,7 +21,7 @@ Import the package, and load your conllu file into a doc. The examples below use
 part of the reference Romanian-language UD corpus, RoRefTrees.
 
     >>> import conllu_path as cp
-    >>> doc = cp.Doc.from_conllu('../ro_rrt-ud-train.conllu')
+    >>> doc = cp.Doc.from_conllu('./ro_rrt-ud-train.conllu')
 
 (The following examples assume you know something about the conllu annotation format. If
 you don't, consult https://universaldependencies.org/, the homepage of the corpus
@@ -29,7 +30,7 @@ you are using and, of course, browse the corpus yourself.)
 Now I'm going to search the doc for the plural form of the noun *vis*
 (meaning *dream*). I'm doing this because I know this noun has two possible plurals,
 *vise* and *visuri*, and I would like to see what context each is used in. To do this,
-I am going to use the ``Doc.search`` function, which searches through all the
+I am going to use the ``Doc.search()`` function, which searches through all the
 sentences in a doc, starting at the root of each sentence. Its argument is the
 following search expression:
 
@@ -64,10 +65,23 @@ will tell you that the *-uri* ending is used when the word *vis* means dream=asp
 and the *-e* ending for the literal sense of dream=vision-while-sleeping. These examples
 confirm what the dictionary says.
 
-The ``doc.search`` function returns a generator of ``Tree`` objects. ``Tree`` objects
+In requirements of the type ``name=value`` (as in the example above), the key must
+be one of the word token fields, as defined by the conllu format:
+``id, form, lemma, upos, xpos, feats, deprel, deps, misc``. The ``feats`` and
+``misc`` fields contain key-value pairs that can be searched for by using the
+``field.key=value`` syntax, e.g. ``feats.Number=Plur``, or ``misc.SpaceAfter=No``.
+What key-value pairs are found in the ``feats`` and ``misc`` fields varies from
+language to language and part-of-speech to part-of-speech. Consult the corpus
+documentation, but manually inspecting the corpus is the best way of getting a sense
+for what you will find in these fields.
+
+Inspecting and modifying tree data
+----------------------------------
+
+The ``Doc.search()`` function returns a generator of ``Tree`` objects. ``Tree`` objects
 represent nodes in the sentence dependency tree, one node for each token (word,
 punctuation, etc.) in the sentence. I can inspect the content of the annotation
-for a node using the ``Tree.data`` function:
+for a node using the ``Tree.data()`` function:
 
 >>> match.data('form')
 'visurile'
@@ -77,7 +91,7 @@ for a node using the ``Tree.data`` function:
 Morphological features and annotations in the ``misc`` section are stored as sets,
 since a feature can have more than one value. Repeatedly getting the value of the sole member
 of a set can be a pain, so you can get the content of any annotation in string form
-using the ``Tree.sdata`` function.
+using the ``Tree.sdata()`` function.
 
 >>> match.sdata('feats.Gender')
 'Fem'
@@ -85,29 +99,66 @@ using the ``Tree.sdata`` function.
 (If the feature has multiple values, they will be joined by commas and returned
 as a string.)
 
-Using ``Tree.data`` without an argument will return the entire annotation of the node
+Using ``Tree.data()`` without an argument will return the entire annotation of the node
 in dictionary form:
 
 >>> match.data()
-{'id': '11', 'form': 'visurile', 'lemma': 'vis', 'upos': 'NOUN', 'xpos': 'Ncfpry', 'feats': {'Case': {'Nom', 'Acc'}, 'Definite': {'Def'}, 'Gender': {'Fem'}, 'Number': {'Plur'}}, 'head': '9', 'deprel': 'conj', 'deps': None, 'misc': None}
+{'id': '11', 'form': 'visurile', 'lemma': 'vis', 'upos': 'NOUN', 'xpos': 'Ncfpry', 'feats': {'Case': {'Nom', 'Acc'}, 'Definite': {'Def'}, 'Gender': {'Fem'}, 'Number': {'Plur'}}, 'head': '9', 'deprel': 'conj', 'deps': {}, 'misc': {}}}
 
-It's possible to search for multiple feature values at once, e.g. ``lemma=vis,coșmar`` will
+For changing the data in a node, you should not use this data directly.
+Use the ``Tree.assign()`` function: for
+instance ``match.assign('deprel', 'amod')`` will change the node's deprel to ``amod``,
+and
+
+>>> match.assign('misc.Annotation', {'Interesting', 'Wrong'})
+
+will add a
+key-value pair ``Annotation=Interesting,Wrong`` to the ``misc`` field.
+
+Please note that changing the ``head`` of a node will not change the tree
+on-the-fly. You would have to save the changed doc to a conllu file and
+reload it to see the effect in the tree structure.
+
+Ways of specifying values to search for
+---------------------------------------
+
+It's possible to search for multiple  values at once, separated by commas, e.g.
+``lemma=vis,coșmar`` will
 match nodes whose lemma is either *vis* or *coșmar* (nightmare). Feature values
 can also be matched against regular expressions enclosed in curly braces. For
-instance, ``lemma={filo.*}`` will match any lemma that starts with 'filo'.
+instance, ``lemma={auto.*}`` will match any lemma that starts with 'auto'.
+
+Requirements with the equal (``=``) operator must be matched exactly. For partial
+matches, you can use the ``~`` operator. For instance, ``deprel~comp,subj`` will
+match any deprel that contains the strings *comp* or *subj* (e.g., *ccomp, xcomp,
+ccomp:pmod, nsubj, csubj*).
 
 Search requirements can be combined using the logical operators *and* (``&``),
 *or* (``|``) and *not* (``!``), and grouped using parentheses. The order of
 operations is *not*, *and*, *or*.
 Space-separated requirements (as in the example
-above) are implicitly and-ed. If I want to search for a verb that is used as an
+above) are implicitly *and*-ed. If I want to search for a verb that is used as an
 auxiliary or has the lemma *putea*, my search string would be
 
     ``.//[upos=VERB (deprel=aux | lemma=putea) ]``
 
+In addition to the conllu fields listed above, ``conllu-path`` search expressions allow
+searching for fixed expressions by using the ``flemma`` key. For instance, to search
+for the verbal construction *avea de gând*, meaning *to intend* (literally, *have of
+thought*), use the search expression:
+
+    ``.//[flemma=avea_de_gând]``
+
+So, to search for fixed expressions, compare the ``flemma`` key to the lemmas
+of the words comprising the fixed expression, joined by underscores, in order.
+
+Iterating through large corpora and node IDs
+--------------------------------------------
+
 If your corpus is very large, loading all of it to the memory can pose problems. Corpora
 can be iterated through (by sentence), using the
-``conllu_path.iter_sentences_from_conllu`` function:
+``conllu_path.iter_sentences_from_conllu()`` function:
+
 
     >>> for sentence in cp.iter_sentences_from_conllu('../ro_rrt-ud-train.conllu'):
     ...     for match in sentence.search('.//[lemma=vis upos=NOUN feats.Number=Plur]'):
@@ -131,6 +182,8 @@ get a node from a doc by its UID:
 >>> doc.get_node('train-3538/1'), doc.get_node('train-3538/1').sentence()
 (1:Visele, Visele sunt semne de dragoste. (sent_id=train-3538))
 
+Searching for a node's children, parents, etc.
+----------------------------------------------
 
 A search can include requirements for a node's children, descendants, or
 parent. In the next search, I am looking for the verbal pro-form *a o face* (to
@@ -201,11 +254,13 @@ to the node.
     Match(11:fete) [Match(10:grațioase)] Unul dintre cele mai pregnante studii este al unei grațioase fete de zece ani care s-a înecat câțiva ani mai târziu într-un accident de canotaj pe Mississippi. (sent_id=train-5188)
     Match(21:fetele) [Match(22:nemăritate)] Ăl mai mare era Oprică al lui coana Mărita, una de da în cărți și făcea de dragoste la fetele nemăritate. (sent_id=train-6810)
 
-The adjectives that describe the noun *fată* are *singură* (alone), *bolnavă* (sick),
+The adjectives that describe the noun *fată* in this corpus are
+*singură* (alone), *bolnavă* (sick),
 *mare* (big/old, i.e. an old maid), *grațioasă* (graceful), *nemăritată* (unmarried).
 
 When the search expression consists of a path (rather than the description of a
-single node), ``doc.search`` returns a ``Match`` object instead of a ``Tree`` object
+single node), ``Doc.search()`` returns a ``Match`` object instead of a ``Tree``
+object.
 A ``Match`` object has a ``node`` attribute that points to the node itself,
 and a ``next_nodes`` attribute, a list of the nodes that matched the next element
 in the path. The next element in the path can match multiple nodes. In the
@@ -219,7 +274,7 @@ are used together to describe the noun *familie*, family:
     Match(10:familie) [Match(9:veche), Match(11:boierească)] Prin tată, B. se trăgea dintr-o veche familie boierească (Mustea), atestată pe vremea lui Ștefan cel Mare. (sent_id=train-2680)
     Match(6:familii) [Match(7:irlandeze), Match(9:nebune)] Descrierea lui Ronan a unei familii irlandeze puțin nebune este numai suficient de răutăcioasă ca să rămână pe partea mai dură a sentimentalului, povestirea sa despre dispariția înceată a unei prietenii inconfortabil de convingătoare. (sent_id=train-5091)
 
-Families are described in the corpus as being *singură, imensă* (alone, huge),
+Families are described in the corpus as being *singură, imensă* (single, huge),
 *veche, boierească* (old, aristocratic), *irlandeză, nebună* (Irish, crazy).
 
 (Note that this search won't capture adjectives that are connected by coordination
@@ -229,13 +284,13 @@ adjectives would have to look like this:
 
     ``'.//[upos=NOUN lemma=lemma]/[deprel=amod upos=ADJ]/[deprel=conj upos=ADJ]'``
 
-where deprel=conj means 'is connected to the previous item by a relationship of coordination.
+where ``deprel=conj`` means 'is connected to the previous item by a relationship of coordination.
 Searches have to take into account the way the UD dependency trees are structured.)
 
 So far, I've shown examples of searches applying to entire docs or sentences.
 Searches can start from individual nodes as well, using a ``Search`` object.
 The ``Search`` object is built by passing a search expression to the constructor.
-It implements a ``Search.match`` function that takes a node as its argument and
+It implements a ``Search.match()`` function that takes a node as its argument and
 returns a list of nodes that match the search, starting at that node. For example,
 let's pick a node in the doc:
 
@@ -260,7 +315,7 @@ subordinating conjunctions, adverbs, or particles:
     >>> cp.Search('/[upos=PART]').match(node)
     [11:să, 12:nu]
 
-Since the ``Search.match`` function returns an empty list if no matching node
+Since the ``Search.match()`` function returns an empty list if no matching node
 is found, it can be used in list comprehensions -- in the next example, to build
 a list of those nodes that are either subordinate conjunctions or particles:
 
@@ -268,4 +323,18 @@ a list of those nodes that are either subordinate conjunctions or particles:
 [4:că, 11:să, 12:nu]
 
 Note that in this case, the path prefix is ``.``, meaning that the search is
-happenning on the current node (not on its children or descendants).
+happenning on the current node (not on its children or descendants). Here is a
+quick inventory of the path prefixes that are supported:
+
+======= ============================================
+Prefix  Search will target
+======= ============================================
+``.``   the current node
+``/``   the current node's children
+``//``  the current node's descendants
+``./``  the current node and its children
+``.//`` the current node and all its descendants
+``<``   the current node's children that precede it
+``>``   the current node's children that follow it
+``../`` the current node's parent
+======= ============================================

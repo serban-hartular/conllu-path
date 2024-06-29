@@ -3,6 +3,9 @@ from __future__ import annotations
 import abc
 from typing import List, Set, Dict
 
+class AssignException(Exception):
+    pass
+
 class NodeData(abc.ABC):
     """Abstract class for accessing the nested dict that holds node data.
 
@@ -112,15 +115,15 @@ class DictNode(NodeData):
         if isinstance(path, str):
             path = path.split(NodeData.PATH_SEPARATOR)
         if len(path) == 1:
-            if path[0] in self._ddict:
-                self._ddict[path[0]] = value
-                return True
-            return False
+            # if path[0] in self._ddict: # allow adding data
+            self._ddict[path[0]] = value
+            return True
         v = self.data(path[:-1])
         if isinstance(v, NodeData):
             v.assign([path[-1]], value)
             return True
-        return False
+        raise AssignException('In path "%s": path "%s" does not point to dict-like data.' %
+                              ('.'.join(path), '.'.join(path[:-1])))
 
 class FixedKeysNode(NodeData):
     """Implementation of NodeData where the keys are fixed and known. """
@@ -158,9 +161,10 @@ class FixedKeysNode(NodeData):
             if path[0] in self.key_index_dict:
                 self._dlist[self.key_index_dict[path[0]]] = value
                 return True
-            return False
+            raise AssignException('Key %s does not exist!' % path[0])
         v = self.data(path[:-1])
         if isinstance(v, NodeData):
             v.assign([path[-1]], value)
             return True
-        return False
+        raise AssignException('In path "%s": "%s" does not point to dict-like data.' %
+                        ('.'.join(path), '.'.join(path[:-1])))

@@ -38,7 +38,7 @@ key     : key "." CNAME
         | CNAME
 
 PATH_MARKER : "/" | "//" | "./" |  "../" | ".//" | "." | "<" | ">"
-EQU : "="
+EQU : "=" | "~"
 WORD: /[\w\-\'][\w\-\:\.\-\']*/
 REGEX : "{regex_start}" /.+/ "{regex_stop}"
 
@@ -65,7 +65,7 @@ class ExpressionBuilder(lark.Transformer):
         return Operation(Operator.AND, args[0], args[1])
     def equality(self, args):
         if len(args) == 1: return args[0]
-        return ValueComparer('=', args[0], args[2])
+        return ValueComparer(args[1], args[0], args[2]) # '='
     def negated_equality(self, args):
         return Operation(Operator.NOT, args[0])
     def any(self, args):

@@ -27,11 +27,14 @@ def conllu_to_node(source : str, line_nr : int = None) -> Tree:
     #     raise ConlluException(source, 'Invalid nr of fields', line_nr)
     data_list = []
     for label, data_str in zip(conllu_fields, data_fields):
+        # if not data_str or data_str == EMPTY_FIELD:
+        #     data_list.append(None)
         if not data_str or data_str == EMPTY_FIELD:
-            data_list.append(None)
-        elif label in field_is_dict:
+            data_str = None
+
+        if label in field_is_dict:
             #this field contains a dict
-            items = data_str.split(DICT_SET_ITEM_SPLIT)
+            items = [] if data_str is None else data_str.split(DICT_SET_ITEM_SPLIT)
             try:
                 item_dict = {t[0]:set(t[1].split(MANY_VALS_SEP))
                              for t in (s.split(KEY_VAL_SEP[label], 1) for s in items)}
@@ -39,10 +42,10 @@ def conllu_to_node(source : str, line_nr : int = None) -> Tree:
                 raise ConlluException(data_str, 'Error splitting dict field', line_nr)
             data_list.append(DictNode(item_dict))
         elif label in field_is_set:
-            items = data_str.split(DICT_SET_ITEM_SPLIT)
+            items = () if data_str is None else data_str.split(DICT_SET_ITEM_SPLIT)
             data_list.append(set(items))
         else:
-            data_list.append(data_str)
+            data_list.append('' if data_str is None else data_str)
     data = FixedKeysNode(data_list, conllu_index_dict)
     return Tree(data.sdata('id'), data)
 

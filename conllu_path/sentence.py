@@ -136,6 +136,13 @@ class Doc(List[Sentence]):
         if len(self._id_dict) != len(self):
             warnings.warn('Warning! Sentence ids not unique!')
 
+    def __add__(self, other : List[Sentence]) -> Doc:
+        return Doc(list(self) + list(other))
+
+    def __iadd__(self, other) -> Doc:
+        self.__init__(list(self) + list(other))
+        return self
+
     def get_sentence(self, sent_id) -> Sentence|None:
         return self._id_dict.get(sent_id)
 

@@ -5,38 +5,44 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Usage &#8212; conllu-path 0.0.3 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
-    <script src="_static/documentation_options.js?v=47de8214"></script>
+    <title>Usage &#8212; conllu-path 0.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=649a27d8" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxdoc.css?v=87629129" />
+    <script src="_static/documentation_options.js?v=8c5712d9"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API" href="api.html" />
-    <link rel="prev" title="Welcome to conllu-path’s documentation!" href="index.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-
-  
-  
-
+    <link rel="prev" title="Welcome to conllu-path’s documentation!" href="index.html" /> 
   </head><body>
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to conllu-path’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">conllu-path 0.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
 <section id="installation">
 <span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
-<p>To use conllu-path, first install it using pip:</p>
+<p>To use conllu-path, first install it using pip (the project is currently on
+testpyi, so you have to enter two commands):</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(.venv)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>lark
 <span class="gp gp-VirtualEnv">(.venv)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-i<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>conllu-path-shartular
 </pre></div>
@@ -47,7 +53,7 @@
 <p>Import the package, and load your conllu file into a doc. The examples below use
 part of the reference Romanian-language UD corpus, RoRefTrees.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">conllu_path</span> <span class="k">as</span> <span class="nn">cp</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">Doc</span><span class="o">.</span><span class="n">from_conllu</span><span class="p">(</span><span class="s1">&#39;../ro_rrt-ud-train.conllu&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">doc</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">Doc</span><span class="o">.</span><span class="n">from_conllu</span><span class="p">(</span><span class="s1">&#39;./ro_rrt-ud-train.conllu&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>(The following examples assume you know something about the conllu annotation format. If
@@ -56,7 +62,7 @@ you are using and, of course, browse the corpus yourself.)</p>
 <p>Now I’m going to search the doc for the plural form of the noun <em>vis</em>
 (meaning <em>dream</em>). I’m doing this because I know this noun has two possible plurals,
 <em>vise</em> and <em>visuri</em>, and I would like to see what context each is used in. To do this,
-I am going to use the <code class="docutils literal notranslate"><span class="pre">Doc.search</span></code> function, which searches through all the
+I am going to use the <code class="docutils literal notranslate"><span class="pre">Doc.search()</span></code> function, which searches through all the
 sentences in a doc, starting at the root of each sentence. Its argument is the
 following search expression:</p>
 <p><code class="docutils literal notranslate"><span class="pre">'.//[lemma=vis</span> <span class="pre">upos=NOUN</span> <span class="pre">feats.Number=Plur]'</span></code>.</p>
@@ -88,10 +94,22 @@ feature is <em>Plur</em>, singifying plural.</p>
 will tell you that the <em>-uri</em> ending is used when the word <em>vis</em> means dream=aspiration,
 and the <em>-e</em> ending for the literal sense of dream=vision-while-sleeping. These examples
 confirm what the dictionary says.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">doc.search</span></code> function returns a generator of <code class="docutils literal notranslate"><span class="pre">Tree</span></code> objects. <code class="docutils literal notranslate"><span class="pre">Tree</span></code> objects
+<p>In requirements of the type <code class="docutils literal notranslate"><span class="pre">name=value</span></code> (as in the example above), the key must
+be one of the word token fields, as defined by the conllu format:
+<code class="docutils literal notranslate"><span class="pre">id,</span> <span class="pre">form,</span> <span class="pre">lemma,</span> <span class="pre">upos,</span> <span class="pre">xpos,</span> <span class="pre">feats,</span> <span class="pre">deprel,</span> <span class="pre">deps,</span> <span class="pre">misc</span></code>. The <code class="docutils literal notranslate"><span class="pre">feats</span></code> and
+<code class="docutils literal notranslate"><span class="pre">misc</span></code> fields contain key-value pairs that can be searched for by using the
+<code class="docutils literal notranslate"><span class="pre">field.key=value</span></code> syntax, e.g. <code class="docutils literal notranslate"><span class="pre">feats.Number=Plur</span></code>, or <code class="docutils literal notranslate"><span class="pre">misc.SpaceAfter=No</span></code>.
+What key-value pairs are found in the <code class="docutils literal notranslate"><span class="pre">feats</span></code> and <code class="docutils literal notranslate"><span class="pre">misc</span></code> fields varies from
+language to language and part-of-speech to part-of-speech. Consult the corpus
+documentation, but manually inspecting the corpus is the best way of getting a sense
+for what you will find in these fields.</p>
+</section>
+<section id="inspecting-and-modifying-tree-data">
+<h2>Inspecting and modifying tree data<a class="headerlink" href="#inspecting-and-modifying-tree-data" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Doc.search()</span></code> function returns a generator of <code class="docutils literal notranslate"><span class="pre">Tree</span></code> objects. <code class="docutils literal notranslate"><span class="pre">Tree</span></code> objects
 represent nodes in the sentence dependency tree, one node for each token (word,
 punctuation, etc.) in the sentence. I can inspect the content of the annotation
-for a node using the <code class="docutils literal notranslate"><span class="pre">Tree.data</span></code> function:</p>
+for a node using the <code class="docutils literal notranslate"><span class="pre">Tree.data()</span></code> function:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">)</span>
 <span class="go">&#39;visurile&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s1">&#39;feats.Gender&#39;</span><span class="p">)</span>
@@ -101,35 +119,67 @@ for a node using the <code class="docutils literal notranslate"><span class="pre
 <p>Morphological features and annotations in the <code class="docutils literal notranslate"><span class="pre">misc</span></code> section are stored as sets,
 since a feature can have more than one value. Repeatedly getting the value of the sole member
 of a set can be a pain, so you can get the content of any annotation in string form
-using the <code class="docutils literal notranslate"><span class="pre">Tree.sdata</span></code> function.</p>
+using the <code class="docutils literal notranslate"><span class="pre">Tree.sdata()</span></code> function.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">sdata</span><span class="p">(</span><span class="s1">&#39;feats.Gender&#39;</span><span class="p">)</span>
 <span class="go">&#39;Fem&#39;</span>
 </pre></div>
 </div>
 <p>(If the feature has multiple values, they will be joined by commas and returned
 as a string.)</p>
-<p>Using <code class="docutils literal notranslate"><span class="pre">Tree.data</span></code> without an argument will return the entire annotation of the node
+<p>Using <code class="docutils literal notranslate"><span class="pre">Tree.data()</span></code> without an argument will return the entire annotation of the node
 in dictionary form:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
-<span class="go">{&#39;id&#39;: &#39;11&#39;, &#39;form&#39;: &#39;visurile&#39;, &#39;lemma&#39;: &#39;vis&#39;, &#39;upos&#39;: &#39;NOUN&#39;, &#39;xpos&#39;: &#39;Ncfpry&#39;, &#39;feats&#39;: {&#39;Case&#39;: {&#39;Nom&#39;, &#39;Acc&#39;}, &#39;Definite&#39;: {&#39;Def&#39;}, &#39;Gender&#39;: {&#39;Fem&#39;}, &#39;Number&#39;: {&#39;Plur&#39;}}, &#39;head&#39;: &#39;9&#39;, &#39;deprel&#39;: &#39;conj&#39;, &#39;deps&#39;: None, &#39;misc&#39;: None}</span>
+<span class="go">{&#39;id&#39;: &#39;11&#39;, &#39;form&#39;: &#39;visurile&#39;, &#39;lemma&#39;: &#39;vis&#39;, &#39;upos&#39;: &#39;NOUN&#39;, &#39;xpos&#39;: &#39;Ncfpry&#39;, &#39;feats&#39;: {&#39;Case&#39;: {&#39;Nom&#39;, &#39;Acc&#39;}, &#39;Definite&#39;: {&#39;Def&#39;}, &#39;Gender&#39;: {&#39;Fem&#39;}, &#39;Number&#39;: {&#39;Plur&#39;}}, &#39;head&#39;: &#39;9&#39;, &#39;deprel&#39;: &#39;conj&#39;, &#39;deps&#39;: {}, &#39;misc&#39;: {}}}</span>
 </pre></div>
 </div>
-<p>It’s possible to search for multiple feature values at once, e.g. <code class="docutils literal notranslate"><span class="pre">lemma=vis,coșmar</span></code> will
+<p>For changing the data in a node, you should not use this data directly.
+Use the <code class="docutils literal notranslate"><span class="pre">Tree.assign()</span></code> function: for
+instance <code class="docutils literal notranslate"><span class="pre">match.assign('deprel',</span> <span class="pre">'amod')</span></code> will change the node’s deprel to <code class="docutils literal notranslate"><span class="pre">amod</span></code>,
+and</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">match</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="s1">&#39;misc.Annotation&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Interesting&#39;</span><span class="p">,</span> <span class="s1">&#39;Wrong&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>will add a
+key-value pair <code class="docutils literal notranslate"><span class="pre">Annotation=Interesting,Wrong</span></code> to the <code class="docutils literal notranslate"><span class="pre">misc</span></code> field.</p>
+<p>Please note that changing the <code class="docutils literal notranslate"><span class="pre">head</span></code> of a node will not change the tree
+on-the-fly. You would have to save the changed doc to a conllu file and
+reload it to see the effect in the tree structure.</p>
+</section>
+<section id="ways-of-specifying-values-to-search-for">
+<h2>Ways of specifying values to search for<a class="headerlink" href="#ways-of-specifying-values-to-search-for" title="Link to this heading">¶</a></h2>
+<p>It’s possible to search for multiple  values at once, separated by commas, e.g.
+<code class="docutils literal notranslate"><span class="pre">lemma=vis,coșmar</span></code> will
 match nodes whose lemma is either <em>vis</em> or <em>coșmar</em> (nightmare). Feature values
 can also be matched against regular expressions enclosed in curly braces. For
-instance, <code class="docutils literal notranslate"><span class="pre">lemma={filo.*}</span></code> will match any lemma that starts with ‘filo’.</p>
+instance, <code class="docutils literal notranslate"><span class="pre">lemma={auto.*}</span></code> will match any lemma that starts with ‘auto’.</p>
+<p>Requirements with the equal (<code class="docutils literal notranslate"><span class="pre">=</span></code>) operator must be matched exactly. For partial
+matches, you can use the <code class="docutils literal notranslate"><span class="pre">~</span></code> operator. For instance, <code class="docutils literal notranslate"><span class="pre">deprel~comp,subj</span></code> will
+match any deprel that contains the strings <em>comp</em> or <em>subj</em> (e.g., <em>ccomp, xcomp,
+ccomp:pmod, nsubj, csubj</em>).</p>
 <p>Search requirements can be combined using the logical operators <em>and</em> (<code class="docutils literal notranslate"><span class="pre">&amp;</span></code>),
 <em>or</em> (<code class="docutils literal notranslate"><span class="pre">|</span></code>) and <em>not</em> (<code class="docutils literal notranslate"><span class="pre">!</span></code>), and grouped using parentheses. The order of
 operations is <em>not</em>, <em>and</em>, <em>or</em>.
 Space-separated requirements (as in the example
-above) are implicitly and-ed. If I want to search for a verb that is used as an
+above) are implicitly <em>and</em>-ed. If I want to search for a verb that is used as an
 auxiliary or has the lemma <em>putea</em>, my search string would be</p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">.//[upos=VERB</span> <span class="pre">(deprel=aux</span> <span class="pre">|</span> <span class="pre">lemma=putea)</span> <span class="pre">]</span></code></p>
 </div></blockquote>
+<p>In addition to the conllu fields listed above, <code class="docutils literal notranslate"><span class="pre">conllu-path</span></code> search expressions allow
+searching for fixed expressions by using the <code class="docutils literal notranslate"><span class="pre">flemma</span></code> key. For instance, to search
+for the verbal construction <em>avea de gând</em>, meaning <em>to intend</em> (literally, <em>have of
+thought</em>), use the search expression:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">.//[flemma=avea_de_gând]</span></code></p>
+</div></blockquote>
+<p>So, to search for fixed expressions, compare the <code class="docutils literal notranslate"><span class="pre">flemma</span></code> key to the lemmas
+of the words comprising the fixed expression, joined by underscores, in order.</p>
+</section>
+<section id="iterating-through-large-corpora-and-node-ids">
+<h2>Iterating through large corpora and node IDs<a class="headerlink" href="#iterating-through-large-corpora-and-node-ids" title="Link to this heading">¶</a></h2>
 <p>If your corpus is very large, loading all of it to the memory can pose problems. Corpora
 can be iterated through (by sentence), using the
-<code class="docutils literal notranslate"><span class="pre">conllu_path.iter_sentences_from_conllu</span></code> function:</p>
+<code class="docutils literal notranslate"><span class="pre">conllu_path.iter_sentences_from_conllu()</span></code> function:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">cp</span><span class="o">.</span><span class="n">iter_sentences_from_conllu</span><span class="p">(</span><span class="s1">&#39;../ro_rrt-ud-train.conllu&#39;</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;.//[lemma=vis upos=NOUN feats.Number=Plur]&#39;</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s1">&#39;form&#39;</span><span class="p">),</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">uid</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">sentence</span><span class="p">())</span>
@@ -153,6 +203,9 @@ get a node from a doc by its UID:</p>
 <span class="go">(1:Visele, Visele sunt semne de dragoste. (sent_id=train-3538))</span>
 </pre></div>
 </div>
+</section>
+<section id="searching-for-a-node-s-children-parents-etc">
+<h2>Searching for a node’s children, parents, etc.<a class="headerlink" href="#searching-for-a-node-s-children-parents-etc" title="Link to this heading">¶</a></h2>
 <p>A search can include requirements for a node’s children, descendants, or
 parent. In the next search, I am looking for the verbal pro-form <em>a o face</em> (to
 do it/this), consisting of the verb <em>face</em> and the feminine pronominal clitic <em>o</em>
@@ -220,10 +273,12 @@ to the node.</p>
 <span class="go">Match(21:fetele) [Match(22:nemăritate)] Ăl mai mare era Oprică al lui coana Mărita, una de da în cărți și făcea de dragoste la fetele nemăritate. (sent_id=train-6810)</span>
 </pre></div>
 </div>
-<p>The adjectives that describe the noun <em>fată</em> are <em>singură</em> (alone), <em>bolnavă</em> (sick),
+<p>The adjectives that describe the noun <em>fată</em> in this corpus are
+<em>singură</em> (alone), <em>bolnavă</em> (sick),
 <em>mare</em> (big/old, i.e. an old maid), <em>grațioasă</em> (graceful), <em>nemăritată</em> (unmarried).</p>
 <p>When the search expression consists of a path (rather than the description of a
-single node), <code class="docutils literal notranslate"><span class="pre">doc.search</span></code> returns a <code class="docutils literal notranslate"><span class="pre">Match</span></code> object instead of a <code class="docutils literal notranslate"><span class="pre">Tree</span></code> object
+single node), <code class="docutils literal notranslate"><span class="pre">Doc.search()</span></code> returns a <code class="docutils literal notranslate"><span class="pre">Match</span></code> object instead of a <code class="docutils literal notranslate"><span class="pre">Tree</span></code>
+object.
 A <code class="docutils literal notranslate"><span class="pre">Match</span></code> object has a <code class="docutils literal notranslate"><span class="pre">node</span></code> attribute that points to the node itself,
 and a <code class="docutils literal notranslate"><span class="pre">next_nodes</span></code> attribute, a list of the nodes that matched the next element
 in the path. The next element in the path can match multiple nodes. In the
@@ -237,7 +292,7 @@ are used together to describe the noun <em>familie</em>, family:</p>
 <span class="go">Match(6:familii) [Match(7:irlandeze), Match(9:nebune)] Descrierea lui Ronan a unei familii irlandeze puțin nebune este numai suficient de răutăcioasă ca să rămână pe partea mai dură a sentimentalului, povestirea sa despre dispariția înceată a unei prietenii inconfortabil de convingătoare. (sent_id=train-5091)</span>
 </pre></div>
 </div>
-<p>Families are described in the corpus as being <em>singură, imensă</em> (alone, huge),
+<p>Families are described in the corpus as being <em>singură, imensă</em> (single, huge),
 <em>veche, boierească</em> (old, aristocratic), <em>irlandeză, nebună</em> (Irish, crazy).</p>
 <p>(Note that this search won’t capture adjectives that are connected by coordination
 since, in the UD annotation, the second item in a coordinated construction is
@@ -246,12 +301,12 @@ adjectives would have to look like this:</p>
 <blockquote>
 <div><p><code class="docutils literal notranslate"><span class="pre">'.//[upos=NOUN</span> <span class="pre">lemma=lemma]/[deprel=amod</span> <span class="pre">upos=ADJ]/[deprel=conj</span> <span class="pre">upos=ADJ]'</span></code></p>
 </div></blockquote>
-<p>where deprel=conj means ‘is connected to the previous item by a relationship of coordination.
+<p>where <code class="docutils literal notranslate"><span class="pre">deprel=conj</span></code> means ‘is connected to the previous item by a relationship of coordination.
 Searches have to take into account the way the UD dependency trees are structured.)</p>
 <p>So far, I’ve shown examples of searches applying to entire docs or sentences.
 Searches can start from individual nodes as well, using a <code class="docutils literal notranslate"><span class="pre">Search</span></code> object.
 The <code class="docutils literal notranslate"><span class="pre">Search</span></code> object is built by passing a search expression to the constructor.
-It implements a <code class="docutils literal notranslate"><span class="pre">Search.match</span></code> function that takes a node as its argument and
+It implements a <code class="docutils literal notranslate"><span class="pre">Search.match()</span></code> function that takes a node as its argument and
 returns a list of nodes that match the search, starting at that node. For example,
 let’s pick a node in the doc:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">node</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s1">&#39;train-3303/14&#39;</span><span class="p">)</span>
@@ -276,7 +331,7 @@ subordinating conjunctions, adverbs, or particles:</p>
 <span class="go">[11:să, 12:nu]</span>
 </pre></div>
 </div>
-<p>Since the <code class="docutils literal notranslate"><span class="pre">Search.match</span></code> function returns an empty list if no matching node
+<p>Since the <code class="docutils literal notranslate"><span class="pre">Search.match()</span></code> function returns an empty list if no matching node
 is found, it can be used in list comprehensions – in the next example, to build
 a list of those nodes that are either subordinate conjunctions or particles:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">()</span> <span class="k">if</span> <span class="n">cp</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s1">&#39;.[upos=SCONJ,PART]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
@@ -284,45 +339,78 @@ a list of those nodes that are either subordinate conjunctions or particles:</p>
 </pre></div>
 </div>
 <p>Note that in this case, the path prefix is <code class="docutils literal notranslate"><span class="pre">.</span></code>, meaning that the search is
-happenning on the current node (not on its children or descendants).</p>
+happenning on the current node (not on its children or descendants). Here is a
+quick inventory of the path prefixes that are supported:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Prefix</p></th>
+<th class="head"><p>Search will target</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.</span></code></p></td>
+<td><p>the current node</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">/</span></code></p></td>
+<td><p>the current node’s children</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">//</span></code></p></td>
+<td><p>the current node’s descendants</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">./</span></code></p></td>
+<td><p>the current node and its children</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.//</span></code></p></td>
+<td><p>the current node and all its descendants</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;</span></code></p></td>
+<td><p>the current node’s children that precede it</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&gt;</span></code></p></td>
+<td><p>the current node’s children that follow it</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">../</span></code></p></td>
+<td><p>the current node’s parent</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 
 
+            <div class="clearer"></div>
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">conllu-path</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sample-usage">Sample usage</a></li>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#sample-usage">Sample usage</a></li>
+<li><a class="reference internal" href="#inspecting-and-modifying-tree-data">Inspecting and modifying tree data</a></li>
+<li><a class="reference internal" href="#ways-of-specifying-values-to-search-for">Ways of specifying values to search for</a></li>
+<li><a class="reference internal" href="#iterating-through-large-corpora-and-node-ids">Iterating through large corpora and node IDs</a></li>
+<li><a class="reference internal" href="#searching-for-a-node-s-children-parents-etc">Searching for a node’s children, parents, etc.</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Welcome to conllu-path’s documentation!</a></li>
-      <li>Next: <a href="api.html" title="next chapter">API</a></li>
-  </ul></li>
-</ul>
-</div>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Welcome to <code class="docutils literal notranslate"><span class="pre">conllu-path</span></code>’s documentation!</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -333,32 +421,29 @@ happenning on the current node (not on its children or descendants).</p>
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &#169;2024, Serban Hartular.
-      
-      |
-      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
-      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
-      
-      |
-      <a href="_sources/usage.rst.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to conllu-path’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">conllu-path 0.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Serban Hartular.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
   </body>
 </html>
