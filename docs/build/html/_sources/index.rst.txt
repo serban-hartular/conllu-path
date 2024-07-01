@@ -23,10 +23,12 @@ if a node is a verb and has a child that is a noun and that child has a child
 that is a preposition whose lemma is *on*:
 
 >>> for node in sentence:
-...   if node.upos=='VERB' and [child for child in node.children if child.upos=='NOUN']:
-...     for noun in [child for child in node.children if child.upos=='NOUN']:
-...       if [noun_child for noun_child in noun.children if child.upos=='ADP' and child.lemma='on']:
-...         report_something(node)
+...   if node.upos=='VERB':
+...     for child1 in node.children:
+...       if child1.upos=='NOUN':
+...         for child2 in child1.children:
+...           if child2.upos=='ADP' and child2.lemma='on':
+...             report_something(node)
 
 gets old very quickly. ``conllu-path`` replaces this kind of code with a search
 that looks like this:

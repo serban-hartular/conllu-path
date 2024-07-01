@@ -6,13 +6,13 @@ Usage
 Installation
 ------------
 
-To use conllu-path, first install it using pip (the project is currently on
-testpyi, so you have to enter two commands):
+To use conllu-path, first install it using pip:
 
 .. code-block:: console
 
-   (.venv) $ pip install lark
-   (.venv) $ pip install -i https://test.pypi.org/simple/ conllu-path-shartular
+   (.venv) $ pip install conllu-path
+
+This project's only dependency is ``lark``, for parsing search expressions.
 
 Sample usage
 --------------------
