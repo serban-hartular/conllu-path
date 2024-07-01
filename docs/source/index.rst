@@ -27,7 +27,7 @@ that is a preposition whose lemma is *on*:
 ...     for child1 in node.children:
 ...       if child1.upos=='NOUN':
 ...         for child2 in child1.children:
-...           if child2.upos=='ADP' and child2.lemma='on':
+...           if child2.upos=='ADP' and child2.lemma=='on':
 ...             report_something(node)
 
 gets old very quickly. ``conllu-path`` replaces this kind of code with a search

@@ -57,7 +57,7 @@ that is a preposition whose lemma is <em>on</em>:</p>
 <span class="gp">... </span>    <span class="k">for</span> <span class="n">child1</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
 <span class="gp">... </span>      <span class="k">if</span> <span class="n">child1</span><span class="o">.</span><span class="n">upos</span><span class="o">==</span><span class="s1">&#39;NOUN&#39;</span><span class="p">:</span>
 <span class="gp">... </span>        <span class="k">for</span> <span class="n">child2</span> <span class="ow">in</span> <span class="n">child1</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-<span class="gp">... </span>          <span class="k">if</span> <span class="n">child2</span><span class="o">.</span><span class="n">upos</span><span class="o">==</span><span class="s1">&#39;ADP&#39;</span> <span class="ow">and</span> <span class="n">child2</span><span class="o">.</span><span class="n">lemma</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">:</span>
+<span class="gp">... </span>          <span class="k">if</span> <span class="n">child2</span><span class="o">.</span><span class="n">upos</span><span class="o">==</span><span class="s1">&#39;ADP&#39;</span> <span class="ow">and</span> <span class="n">child2</span><span class="o">.</span><span class="n">lemma</span><span class="o">==</span><span class="s1">&#39;on&#39;</span><span class="p">:</span>
 <span class="gp">... </span>            <span class="n">report_something</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 </pre></div>
 </div>
