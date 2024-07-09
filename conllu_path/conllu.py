@@ -17,7 +17,7 @@ field_is_dict = ('feats', 'misc')
 field_is_set = ('deps',)
 EMPTY_FIELD = '_'
 DICT_SET_ITEM_SPLIT = '|'
-KEY_VAL_SEP = {'feats': '=', 'misc' : '=', 'deps': ':'}
+KEY_VAL_SEP = {'feats': '=', 'misc' : '=', }
 MANY_VALS_SEP = ','
 
 
@@ -35,30 +35,38 @@ def conllu_to_node(source : str, line_nr : int = None) -> Tree:
         if label in field_is_dict:
             #this field contains a dict
             items = [] if data_str is None else data_str.split(DICT_SET_ITEM_SPLIT)
-            try:
-                item_dict = {t[0]:set(t[1].split(MANY_VALS_SEP))
-                             for t in (s.split(KEY_VAL_SEP[label], 1) for s in items)}
-            except:
-                raise ConlluException(data_str, 'Error splitting dict field', line_nr)
+            item_dict = {}
+            for kv_pair in items: # not pythonic, but allows dealing with erroneous data
+                if kv_pair.count(KEY_VAL_SEP[label]) != 1:
+                    warnings.warn('Error in field %s, line %d: no key-value separator (%s) present' % (label, line_nr, KEY_VAL_SEP[label]))
+                if KEY_VAL_SEP[label] not in kv_pair:
+                    k,v = kv_pair, ['NONE']
+                else:
+                    k,v = kv_pair.split(KEY_VAL_SEP[label], 1)
+                    v = v.split(MANY_VALS_SEP)
+                item_dict[k] = v
+            # item_dict = {t[0]:set(t[1].split(MANY_VALS_SEP))
+            #              for t in (s.split(KEY_VAL_SEP[label], 1) for s in items)}
             data_list.append(DictNode(item_dict))
         elif label in field_is_set:
             items = () if data_str is None else data_str.split(DICT_SET_ITEM_SPLIT)
-            data_list.append(set(items))
+            # data_list.append(set(items))
+            data_list.append(items)
         else:
             data_list.append('' if data_str is None else data_str)
     data = FixedKeysNode(data_list, conllu_index_dict)
     return Tree(data.sdata('id'), data)
 
 def node_to_conllu(node : Tree) -> str:
-    is_null = node.id().elided()
     node = node.to_dict()
     data_list = []
     for label in conllu_fields:
         data = node.get(label)
-        if isinstance(data, str):
-            data = data if data else EMPTY_FIELD
-        elif data is None:
+        if not data:
             data = EMPTY_FIELD
+        elif isinstance(data, str):
+            pass
+            # data = data if data else EMPTY_FIELD
         elif isinstance(data, Dict):
             data =\
                 DICT_SET_ITEM_SPLIT.join(
@@ -66,6 +74,10 @@ def node_to_conllu(node : Tree) -> str:
                         k, MANY_VALS_SEP.join(v) if not isinstance(v, str) else v
                 ])
             for k,v in data.items())
+        elif isinstance(data, typing.Iterable):
+            data = MANY_VALS_SEP.join([str(i) for i in data])
+        elif isinstance(data, int) or isinstance(data, float):
+            data = str(data)
         else:
             raise ConlluException(str(data),
                     'Cannot transform %s item to conllu in %s' % (label, str(node)))
