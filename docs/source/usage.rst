@@ -59,7 +59,7 @@ feature is *Plur*, singifying plural.
     1:Visele  --  Visele sunt semne de dragoste. (sent_id=train-3538)
     11:visurile  --  Realltatea e un monstru hidos, hrănit cu iluziile și visurile noastre. (sent_id=train-3564)
 
-The search returns 11 results, of which only the second and the last have plurals with the
+The search returns 11 results, of which only the fourth and the last have plurals with the
 *-uri* desinence, as opposed to the *-e* desinence. A good Romanian language dictionary
 will tell you that the *-uri* ending is used when the word *vis* means dream=aspiration,
 and the *-e* ending for the literal sense of dream=vision-while-sleeping. These examples
@@ -259,8 +259,8 @@ The adjectives that describe the noun *fată* in this corpus are
 *mare* (big/old, i.e. an old maid), *grațioasă* (graceful), *nemăritată* (unmarried).
 
 When the search expression consists of a path (rather than the description of a
-single node), ``Doc.search()`` returns a ``Match`` object instead of a ``Tree``
-object.
+single node), the ``Doc.search()`` generator yields ``Match`` objects instead of ``Tree``
+objects.
 A ``Match`` object has a ``node`` attribute that points to the node itself,
 and a ``next_nodes`` attribute, a list of the nodes that matched the next element
 in the path. The next element in the path can match multiple nodes. In the

@@ -88,7 +88,7 @@ feature is <em>Plur</em>, singifying plural.</p>
 <span class="go">11:visurile  --  Realltatea e un monstru hidos, hrănit cu iluziile și visurile noastre. (sent_id=train-3564)</span>
 </pre></div>
 </div>
-<p>The search returns 11 results, of which only the second and the last have plurals with the
+<p>The search returns 11 results, of which only the fourth and the last have plurals with the
 <em>-uri</em> desinence, as opposed to the <em>-e</em> desinence. A good Romanian language dictionary
 will tell you that the <em>-uri</em> ending is used when the word <em>vis</em> means dream=aspiration,
 and the <em>-e</em> ending for the literal sense of dream=vision-while-sleeping. These examples
@@ -276,8 +276,8 @@ to the node.</p>
 <em>singură</em> (alone), <em>bolnavă</em> (sick),
 <em>mare</em> (big/old, i.e. an old maid), <em>grațioasă</em> (graceful), <em>nemăritată</em> (unmarried).</p>
 <p>When the search expression consists of a path (rather than the description of a
-single node), <code class="docutils literal notranslate"><span class="pre">Doc.search()</span></code> returns a <code class="docutils literal notranslate"><span class="pre">Match</span></code> object instead of a <code class="docutils literal notranslate"><span class="pre">Tree</span></code>
-object.
+single node), the <code class="docutils literal notranslate"><span class="pre">Doc.search()</span></code> generator yields <code class="docutils literal notranslate"><span class="pre">Match</span></code> objects instead of <code class="docutils literal notranslate"><span class="pre">Tree</span></code>
+objects.
 A <code class="docutils literal notranslate"><span class="pre">Match</span></code> object has a <code class="docutils literal notranslate"><span class="pre">node</span></code> attribute that points to the node itself,
 and a <code class="docutils literal notranslate"><span class="pre">next_nodes</span></code> attribute, a list of the nodes that matched the next element
 in the path. The next element in the path can match multiple nodes. In the
