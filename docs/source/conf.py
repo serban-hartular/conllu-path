@@ -17,7 +17,7 @@ import conllu_path
 project = 'conllu-path'
 copyright = '2024, Serban Hartular'
 author = 'Serban Hartular'
-release = '0.0.4'
+release = '0.0.6'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
